@@ -1,10 +1,17 @@
 {
 	"name": "r3f-slug-mesh",
 	"version": "1.0.0",
-	"dependencies": {
-		"jslug": "github:manthrax/JSlug#eb212fef355a477c6f3be4e2007dd8c6ecabf9f6"
+	"bin": {
+		"sluggify": "./dist/sluggify.js"
 	},
-	"bundledDependencies": [
-		"jslug"
-	]
+	"scripts": {
+		"build": "tsc",
+		"prepublishOnly": "npm run build"
+	},
+	"dependencies": {
+		"three-slug": "^1.1.4"
+	},
+	"devDependencies": {
+		"@types/three": "^0.184.1"
+	}
 }
