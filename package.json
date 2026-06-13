@@ -17,7 +17,7 @@
 		"build": "tsc && node scripts/postbuild.js",
 		"prepublishOnly": "npm run build",
 		"test": "jest",
-		"example": "npx tsx --watch example.ts --host 0.0.0.0"
+		"demo": "vite"
 	},
 	"dependencies": {
 		"three-slug": "^1.1.4"
@@ -33,10 +33,12 @@
 		"@types/node": "^25.9.3",
 		"@types/react": "^18.3.12",
 		"@types/three": "^0.184.1",
+		"@vitejs/plugin-react": "^6.0.2",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
 		"three": "^0.184.0",
 		"ts-jest": "^29.4.11",
-		"typescript": "^6.0.3"
+		"typescript": "^6.0.3",
+		"vite": "^8.0.16"
 	}
 }
