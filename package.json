@@ -5,7 +5,7 @@
 	"description": "React Three Fiber geometry for Slug text and sluggify command",
 	"version": "1.0.0",
 	"bin": {
-		"sluggify": "./dist/sluggify.js"
+		"sluggify": "dist/sluggify.js"
 	},
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
