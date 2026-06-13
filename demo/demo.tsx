@@ -3,8 +3,8 @@ import * as ReactDOM from 'react-dom/client';
 import * as THREE from 'three';
 import { Canvas, useThree, extend, useFrame } from '@react-three/fiber';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { SlugLoader, injectSlug } from 'three-slug';
-import '../src/slugGeometry'; // Ensure slugGeometry and types are extended
+import { SlugLoader } from 'three-slug';
+import { SlugText } from '../src/slugGeometry'; // Ensure slugGeometry and types are extended
 
 // Register OrbitControls with React Three Fiber
 extend({ OrbitControls });
@@ -40,26 +40,15 @@ interface Text3DProps {
 }
 
 function Text3D({ text, slugData, color = '#00ffcc' }: Text3DProps) {
-	const meshRef = React.useRef<THREE.Mesh>(null);
-	const materialRef = React.useRef<THREE.MeshStandardMaterial>(null);
-
-	React.useLayoutEffect(() => {
-		if (meshRef.current && materialRef.current && slugData) {
-			injectSlug(meshRef.current, materialRef.current, slugData);
-		}
-	}, [slugData, text]); // Re-inject when slugData or text changes
-
 	return (
-		<mesh ref={meshRef} castShadow receiveShadow scale={[0.12, 0.12, 0.12]}>
-			<slugGeometry text={text} slugData={slugData} />
+		<SlugText text={text} slugData={slugData} castShadow receiveShadow scale={[0.12, 0.12, 0.12]}>
 			<meshStandardMaterial
-				ref={materialRef}
 				color={color}
 				roughness={0.1}
 				metalness={0.1}
 				side={THREE.DoubleSide}
 			/>
-		</mesh>
+		</SlugText>
 	);
 }
 

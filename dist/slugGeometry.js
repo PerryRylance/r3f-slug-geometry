@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SlugGeometryComponent = exports.slugGeometry = exports.SlugGeometry = void 0;
+exports.SlugText = exports.SlugGeometryComponent = exports.slugGeometry = exports.SlugGeometry = void 0;
 /// <reference path="../three-slug.d.ts" />
 const React = __importStar(require("react"));
 const fiber_1 = require("@react-three/fiber");
@@ -93,3 +93,65 @@ exports.SlugGeometry = React.forwardRef(({ text, slugData, args, fontScale, line
 // Keep existing exports for backwards compatibility
 exports.slugGeometry = exports.SlugGeometry;
 exports.SlugGeometryComponent = exports.SlugGeometry;
+exports.SlugText = React.forwardRef(({ text, slugData, args, fontScale, lineHeight, startX, startY, justify, children, ...meshProps }, ref) => {
+    // 1. Ensure exactly one child is passed
+    const child = React.Children.only(children);
+    // 2. Validate that the single child is a material
+    if (!child || typeof child !== 'object') {
+        throw new Error('SlugText must have a single react child');
+    }
+    const childType = child.type;
+    const typeName = typeof childType === 'string'
+        ? childType
+        : (childType && (childType.displayName || childType.name || ''));
+    const isMaterial = (typeof childType === 'string' && childType.toLowerCase().endsWith('material')) ||
+        (typeof typeName === 'string' && typeName.toLowerCase().includes('material')) ||
+        (child.props && child.props.attach === 'material');
+    if (!isMaterial) {
+        throw new Error('SlugText child must be a material element (e.g., <meshStandardMaterial />)');
+    }
+    const meshRef = React.useRef(null);
+    const materialRef = React.useRef(null);
+    // Combine refs for mesh and material
+    const combinedMeshRef = React.useCallback((node) => {
+        meshRef.current = node;
+        if (typeof ref === 'function') {
+            ref(node);
+        }
+        else if (ref && typeof ref === 'object') {
+            ref.current = node;
+        }
+    }, [ref]);
+    const combinedMaterialRef = React.useCallback((node) => {
+        materialRef.current = node;
+        const originalRef = child.ref;
+        if (typeof originalRef === 'function') {
+            originalRef(node);
+        }
+        else if (originalRef && typeof originalRef === 'object') {
+            originalRef.current = node;
+        }
+    }, [child]);
+    // Re-inject slug when refs or data changes
+    React.useLayoutEffect(() => {
+        if (meshRef.current && materialRef.current && slugData) {
+            (0, three_slug_1.injectSlug)(meshRef.current, materialRef.current, slugData);
+        }
+    }, [slugData, text]);
+    const clonedMaterial = React.cloneElement(child, {
+        ref: combinedMaterialRef,
+    });
+    return React.createElement('mesh', {
+        ref: combinedMeshRef,
+        ...meshProps,
+    }, React.createElement('slugGeometry', {
+        text,
+        slugData,
+        args,
+        fontScale,
+        lineHeight,
+        startX,
+        startY,
+        justify,
+    }), clonedMaterial);
+});

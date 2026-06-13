@@ -59,13 +59,14 @@ jest.mock('three-slug', () => {
       clear = jest.fn();
       addText = jest.fn();
       dispose = jest.fn();
-    }
+    },
+    injectSlug: jest.fn()
   };
 });
 
 import { extend, createRoot } from '@react-three/fiber';
 import * as THREE from 'three';
-import '../src/slugGeometry'; // Ensure extend is called side-effectfully
+import { SlugText } from '../src/slugGeometry'; // Ensure extend is called side-effectfully
 
 // Register standard Three.js classes with R3F for manually created roots
 extend(THREE);
@@ -93,4 +94,58 @@ test('rendering slugGeometry in R3F root does not crash', async () => {
 
   // Verify no crashes and unmount cleanly
   root.unmount();
+});
+
+test('rendering SlugText component in R3F root does not crash', async () => {
+  const canvas = {
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    getBoundingClientRect: () => ({ width: 100, height: 100, top: 0, left: 0, right: 100, bottom: 100 }),
+    style: {},
+    getContext: () => ({}),
+  } as any;
+
+  const root = createRoot(canvas);
+
+  root.render(
+    React.createElement(
+      SlugText,
+      { text: 'hello', slugData: { codePoints: new Map() } as any, name: 'test-mesh' },
+      React.createElement('meshStandardMaterial', { color: 'red' })
+    )
+  );
+
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  root.unmount();
+});
+
+test('SlugText throws error when it has multiple children or no children', () => {
+  expect(() => {
+    (SlugText as any).render({
+      text: 'hello',
+      slugData: {},
+      children: [
+        React.createElement('meshStandardMaterial'),
+        React.createElement('meshStandardMaterial')
+      ]
+    }, null);
+  }).toThrow(/React\.Children\.only/);
+
+  expect(() => {
+    (SlugText as any).render({
+      text: 'hello',
+      slugData: {},
+      children: null
+    }, null);
+  }).toThrow(/React\.Children\.only/);
+});
+
+test('SlugText throws error when child is not a material', () => {
+  expect(() => {
+    (SlugText as any).render({
+      text: 'hello',
+      slugData: {},
+      children: React.createElement('div')
+    }, null);
+  }).toThrow(/SlugText child must be a material element/);
 });
