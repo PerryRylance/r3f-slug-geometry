@@ -34,6 +34,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SlugGeometryComponent = exports.slugGeometry = exports.SlugGeometry = void 0;
+/// <reference path="../three-slug.d.ts" />
 const React = __importStar(require("react"));
 const fiber_1 = require("@react-three/fiber");
 const three_slug_1 = require("three-slug");

@@ -1,20 +1,17 @@
 import * as React from 'react';
 import { type Node } from '@react-three/fiber';
 import { SlugGeometry as ThreeSlugGeometry, GeneratedSlugData } from 'three-slug';
-declare module 'three-slug' {
-    interface SlugGeometry {
-        text?: string;
-        slugData?: GeneratedSlugData;
-        fontScale?: number;
-        lineHeight?: number;
-        startX?: number;
-        startY?: number;
-        justify?: 'left' | 'center' | 'right';
-    }
-}
 declare module '@react-three/fiber' {
     interface ThreeElements {
-        slugGeometry: Node<ThreeSlugGeometry, typeof ThreeSlugGeometry>;
+        slugGeometry: Node<ThreeSlugGeometry, typeof ThreeSlugGeometry> & {
+            text?: string;
+            slugData?: any;
+            fontScale?: number;
+            lineHeight?: number;
+            startX?: number;
+            startY?: number;
+            justify?: 'left' | 'center' | 'right';
+        };
     }
 }
 export interface SlugGeometryProps {

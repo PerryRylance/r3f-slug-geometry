@@ -1,24 +1,20 @@
+/// <reference path="../three-slug.d.ts" />
 import * as React from 'react';
 import { extend, type Node } from '@react-three/fiber';
 import { SlugGeometry as ThreeSlugGeometry, GeneratedSlugData } from 'three-slug';
 
-// Augment the three-slug module to add reactive property types to SlugGeometry
-declare module 'three-slug' {
-  interface SlugGeometry {
-    text?: string;
-    slugData?: GeneratedSlugData;
-    fontScale?: number;
-    lineHeight?: number;
-    startX?: number;
-    startY?: number;
-    justify?: 'left' | 'center' | 'right';
-  }
-}
-
-// Augment the React Three Fiber JSX namespace
+// Augment the React Three Fiber JSX namespace with the custom elements and their specific props
 declare module '@react-three/fiber' {
   interface ThreeElements {
-    slugGeometry: Node<ThreeSlugGeometry, typeof ThreeSlugGeometry>;
+    slugGeometry: Node<ThreeSlugGeometry, typeof ThreeSlugGeometry> & {
+      text?: string;
+      slugData?: any;
+      fontScale?: number;
+      lineHeight?: number;
+      startX?: number;
+      startY?: number;
+      justify?: 'left' | 'center' | 'right';
+    };
   }
 }
 
