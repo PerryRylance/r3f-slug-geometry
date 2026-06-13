@@ -49,10 +49,9 @@ Options:
 }
 async function main() {
     const args = process.argv.slice(2);
-
-    if (args.length === 0 || args.includes('-h') || args.includes('--help')) {
+    if (args.includes('-h') || args.includes('--help')) {
         printHelp();
-        process.exit(1);
+        process.exit(0);
     }
     // Parse options
     let fullRange = false;

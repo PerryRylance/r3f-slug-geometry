@@ -1,5 +1,8 @@
 {
-	"name": "r3f-slug-mesh",
+	"name": "@perry-rylance/r3f-slug-mesh",
+	"author": "Perry Rylance",
+	"license": "CC-BY-3.0",
+	"description": "React Three Fiber geometry for Slug text and sluggify command",
 	"version": "1.0.0",
 	"bin": {
 		"sluggify": "./dist/sluggify.js"
@@ -7,7 +10,7 @@
 	"scripts": {
 		"build": "tsc",
 		"prepublishOnly": "npm run build",
-		"test": "npx test"
+		"test": "jest"
 	},
 	"dependencies": {
 		"three-slug": "^1.1.4"
