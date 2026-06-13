@@ -6,14 +6,17 @@
 	},
 	"scripts": {
 		"build": "tsc",
-		"prepublishOnly": "npm run build"
+		"prepublishOnly": "npm run build",
+		"test": "npx test"
 	},
 	"dependencies": {
 		"three-slug": "^1.1.4"
 	},
 	"devDependencies": {
+		"@jest/globals": "^30.4.1",
 		"@types/node": "^25.9.3",
 		"@types/three": "^0.184.1",
+		"ts-jest": "^29.4.11",
 		"typescript": "^6.0.3"
 	}
 }
