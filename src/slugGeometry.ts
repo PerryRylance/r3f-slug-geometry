@@ -2,7 +2,8 @@
 import * as React from 'react';
 import * as THREE from 'three';
 import { extend, type Node, type MeshProps } from '@react-three/fiber';
-import { SlugGeometry as ThreeSlugGeometry, GeneratedSlugData, injectSlug } from 'three-slug';
+import { SlugGeometry as ThreeSlugGeometry, GeneratedSlugData, injectSlug, SlugLoader } from 'three-slug';
+import { suspend, preload, clear } from 'suspend-react';
 
 // Augment the React Three Fiber JSX namespace with the custom elements and their specific props
 declare module '@react-three/fiber' {
@@ -195,3 +196,41 @@ export const SlugText = React.forwardRef<THREE.Mesh, SlugTextProps>(
     );
   }
 );
+
+const loadSlugData = (_namespace: string, url: string): Promise<GeneratedSlugData> => {
+  return new Promise((resolve, reject) => {
+    const loader = new SlugLoader();
+    loader.load(
+      url,
+      (data) => resolve(data),
+      undefined,
+      (error) => reject(error)
+    );
+  });
+};
+
+export function useSlugLoader<T extends string | string[]>(
+  input: T
+): T extends string[] ? GeneratedSlugData[] : GeneratedSlugData {
+  if (Array.isArray(input)) {
+    const results = input.map((url) => suspend(loadSlugData, ['useSlugLoader', url]));
+    return results as any;
+  }
+  return suspend(loadSlugData, ['useSlugLoader', input as string]) as any;
+}
+
+useSlugLoader.preload = <T extends string | string[]>(input: T): void => {
+  if (Array.isArray(input)) {
+    input.forEach((url) => preload(loadSlugData, ['useSlugLoader', url]));
+  } else {
+    preload(loadSlugData, ['useSlugLoader', input as string]);
+  }
+};
+
+useSlugLoader.clear = <T extends string | string[]>(input: T): void => {
+  if (Array.isArray(input)) {
+    input.forEach((url) => clear(['useSlugLoader', url]));
+  } else {
+    clear(['useSlugLoader', input as string]);
+  }
+};

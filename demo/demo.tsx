@@ -3,8 +3,7 @@ import * as ReactDOM from 'react-dom/client';
 import * as THREE from 'three';
 import { Canvas, useThree, extend, useFrame } from '@react-three/fiber';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { SlugLoader } from 'three-slug';
-import { SlugText } from '../src/slugGeometry'; // Ensure slugGeometry and types are extended
+import { SlugText, useSlugLoader } from '../src/slugGeometry'; // Ensure slugGeometry and types are extended
 
 // Register OrbitControls with React Three Fiber
 extend({ OrbitControls });
@@ -32,14 +31,15 @@ function Controls() {
 	return <orbitControls ref={controlsRef} args={[camera, gl.domElement]} enableDamping dampingFactor={0.05} />;
 }
 
-// Custom 3D Text component utilizing slugGeometry
+// Custom 3D Text component utilizing slugGeometry and suspending via useSlugLoader
 interface Text3DProps {
 	text: string;
-	slugData: any;
 	color?: string;
 }
 
-function Text3D({ text, slugData, color = '#00ffcc' }: Text3DProps) {
+function Text3D({ text, color = '#00ffcc' }: Text3DProps) {
+	const slugData = useSlugLoader('DejaVuSansMono.sluggish');
+
 	return (
 		<SlugText text={text} slugData={slugData} castShadow receiveShadow scale={[0.12, 0.12, 0.12]}>
 			<meshStandardMaterial
@@ -53,23 +53,7 @@ function Text3D({ text, slugData, color = '#00ffcc' }: Text3DProps) {
 }
 
 function Demo() {
-	const [slugData, setSlugData] = React.useState<any>(null);
 	const text = 'R3F Slug Geometry';
-
-	// Load slug font data
-	React.useEffect(() => {
-		const loader = new SlugLoader();
-		loader.load(
-			"DejaVuSansMono.sluggish",
-			(data) => {
-				setSlugData(data);
-			},
-			undefined,
-			(err) => {
-				console.error('Failed to load sluggish font:', err);
-			}
-		);
-	}, []);
 
 	return (
 		<div style={{ width: '100%', height: '100%', position: 'relative' }}>
@@ -80,11 +64,11 @@ function Demo() {
 			>
 				<color attach="background" args={['#07070c']} />
 				<ambientLight intensity={0.9} />
-				{slugData && (
+				<React.Suspense fallback={null}>
 					<group position={[-30, 10, 0]}>
-						<Text3D text={text} slugData={slugData} color="#00ffcc" />
+						<Text3D text={text} color="#00ffcc" />
 					</group>
-				)}
+				</React.Suspense>
 				<Controls />
 			</Canvas>
 		</div>

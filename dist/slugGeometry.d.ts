@@ -40,3 +40,8 @@ export interface SlugTextProps extends Omit<MeshProps, 'children' | 'args'> {
     children: React.ReactElement;
 }
 export declare const SlugText: React.ForwardRefExoticComponent<Omit<SlugTextProps, "ref"> & React.RefAttributes<THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.Material<THREE.MaterialEventMap> | THREE.Material<THREE.MaterialEventMap>[], THREE.Object3DEventMap>>>;
+export declare function useSlugLoader<T extends string | string[]>(input: T): T extends string[] ? GeneratedSlugData[] : GeneratedSlugData;
+export declare namespace useSlugLoader {
+    var preload: <T extends string | string[]>(input: T) => void;
+    var clear: <T extends string | string[]>(input: T) => void;
+}

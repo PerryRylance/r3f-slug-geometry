@@ -34,10 +34,12 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SlugText = exports.SlugGeometryComponent = exports.slugGeometry = exports.SlugGeometry = void 0;
+exports.useSlugLoader = useSlugLoader;
 /// <reference path="../three-slug.d.ts" />
 const React = __importStar(require("react"));
 const fiber_1 = require("@react-three/fiber");
 const three_slug_1 = require("three-slug");
+const suspend_react_1 = require("suspend-react");
 // Intercept properties on SlugGeometry.prototype so that R3F property assignments trigger updates automatically.
 const proto = three_slug_1.SlugGeometry.prototype;
 const defineReactiveProperty = (propName, defaultValue) => {
@@ -155,3 +157,32 @@ exports.SlugText = React.forwardRef(({ text, slugData, args, fontScale, lineHeig
         justify,
     }), clonedMaterial);
 });
+const loadSlugData = (_namespace, url) => {
+    return new Promise((resolve, reject) => {
+        const loader = new three_slug_1.SlugLoader();
+        loader.load(url, (data) => resolve(data), undefined, (error) => reject(error));
+    });
+};
+function useSlugLoader(input) {
+    if (Array.isArray(input)) {
+        const results = input.map((url) => (0, suspend_react_1.suspend)(loadSlugData, ['useSlugLoader', url]));
+        return results;
+    }
+    return (0, suspend_react_1.suspend)(loadSlugData, ['useSlugLoader', input]);
+}
+useSlugLoader.preload = (input) => {
+    if (Array.isArray(input)) {
+        input.forEach((url) => (0, suspend_react_1.preload)(loadSlugData, ['useSlugLoader', url]));
+    }
+    else {
+        (0, suspend_react_1.preload)(loadSlugData, ['useSlugLoader', input]);
+    }
+};
+useSlugLoader.clear = (input) => {
+    if (Array.isArray(input)) {
+        input.forEach((url) => (0, suspend_react_1.clear)(['useSlugLoader', url]));
+    }
+    else {
+        (0, suspend_react_1.clear)(['useSlugLoader', input]);
+    }
+};
