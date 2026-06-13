@@ -33,45 +33,62 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SlugGeometryComponent = exports.slugGeometry = void 0;
+exports.SlugGeometryComponent = exports.slugGeometry = exports.SlugGeometry = void 0;
 const React = __importStar(require("react"));
+const fiber_1 = require("@react-three/fiber");
 const three_slug_1 = require("three-slug");
-exports.slugGeometry = React.forwardRef(({ text, slugData, args }, ref) => {
-    // Determine the max glyph count. When not provided, the max glyph count shall be the length of "text".
-    const maxGlyphs = args && args[0] !== undefined ? args[0] : text.length;
-    // Create the geometry instance. Recreate only if maxGlyphs changes.
-    const geometry = React.useMemo(() => new three_slug_1.SlugGeometry(maxGlyphs), [maxGlyphs]);
-    // Update text whenever text or slugData changes.
-    React.useLayoutEffect(() => {
-        geometry.clear();
-        geometry.addText(text, slugData);
-    }, [geometry, text, slugData]);
-    // Handle ref forwarding and disposal.
-    React.useLayoutEffect(() => {
-        if (ref) {
-            if (typeof ref === 'function') {
-                ref(geometry);
-            }
-            else {
-                ref.current = geometry;
-            }
-        }
-        return () => {
-            if (ref) {
-                if (typeof ref === 'function') {
-                    ref(null);
-                }
-                else {
-                    ref.current = null;
+// Intercept properties on SlugGeometry.prototype so that R3F property assignments trigger updates automatically.
+const proto = three_slug_1.SlugGeometry.prototype;
+const defineReactiveProperty = (propName, defaultValue) => {
+    const privatePropName = `_${propName}`;
+    Object.defineProperty(proto, propName, {
+        get() {
+            return this[privatePropName] !== undefined ? this[privatePropName] : defaultValue;
+        },
+        set(val) {
+            if (this[privatePropName] !== val) {
+                this[privatePropName] = val;
+                if (this.clear && this.addText) {
+                    this.clear();
+                    if (this._text !== undefined && this._slugData !== undefined) {
+                        this.addText(this._text, this._slugData, {
+                            fontScale: this._fontScale,
+                            lineHeight: this._lineHeight,
+                            startX: this._startX,
+                            startY: this._startY,
+                            justify: this._justify
+                        });
+                    }
                 }
             }
-            geometry.dispose();
-        };
-    }, [ref, geometry]);
-    return React.createElement('primitive', {
-        object: geometry,
-        attach: 'geometry',
+        },
+        configurable: true,
+        enumerable: true,
+    });
+};
+defineReactiveProperty('text');
+defineReactiveProperty('slugData');
+defineReactiveProperty('fontScale');
+defineReactiveProperty('lineHeight');
+defineReactiveProperty('startX');
+defineReactiveProperty('startY');
+defineReactiveProperty('justify');
+// Register the SlugGeometry with R3F so it can be used natively as <slugGeometry /> in camelCase
+(0, fiber_1.extend)({ SlugGeometry: three_slug_1.SlugGeometry });
+exports.SlugGeometry = React.forwardRef(({ text, slugData, args, fontScale, lineHeight, startX, startY, justify, ...props }, ref) => {
+    return React.createElement('slugGeometry', {
+        ref,
+        args,
+        text,
+        slugData,
+        fontScale,
+        lineHeight,
+        startX,
+        startY,
+        justify,
+        ...props
     });
 });
-// Export PascalCase alias for JSX standard compatibility
-exports.SlugGeometryComponent = exports.slugGeometry;
+// Keep existing exports for backwards compatibility
+exports.slugGeometry = exports.SlugGeometry;
+exports.SlugGeometryComponent = exports.SlugGeometry;

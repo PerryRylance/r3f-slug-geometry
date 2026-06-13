@@ -14,11 +14,13 @@ jest.mock('three-slug', () => {
   };
 });
 
-import { slugGeometry, SlugGeometryComponent } from '../src/slugGeometry';
+import { SlugGeometry, slugGeometry, SlugGeometryComponent } from '../src/slugGeometry';
 
 test('slugGeometry component is defined and is a forwardRef component', () => {
+  expect(SlugGeometry).toBeDefined();
   expect(slugGeometry).toBeDefined();
   expect(SlugGeometryComponent).toBeDefined();
   expect(slugGeometry).toBe(SlugGeometryComponent);
-  expect(slugGeometry.$$typeof).toBe(Symbol.for('react.forward_ref'));
+  expect(SlugGeometry).toBe(SlugGeometryComponent);
+  expect(SlugGeometry.$$typeof).toBe(Symbol.for('react.forward_ref'));
 });

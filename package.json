@@ -16,7 +16,8 @@
 	"scripts": {
 		"build": "tsc && node scripts/postbuild.js",
 		"prepublishOnly": "npm run build",
-		"test": "jest"
+		"test": "jest",
+		"example": "npx tsx --watch example.ts --host 0.0.0.0"
 	},
 	"dependencies": {
 		"three-slug": "^1.1.4"
