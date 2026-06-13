@@ -10,7 +10,8 @@
     "outDir": "./dist",
     "rootDir": "src",
     "types": ["node"],
-    "isolatedModules": true
+    "isolatedModules": true,
+    "declaration": true
   },
   "include": [
     "src/**/*",
