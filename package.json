@@ -1,0 +1,10 @@
+{
+	"name": "r3f-slug-mesh",
+	"version": "1.0.0",
+	"dependencies": {
+		"jslug": "github:manthrax/JSlug#eb212fef355a477c6f3be4e2007dd8c6ecabf9f6"
+	},
+	"bundledDependencies": [
+		"jslug"
+	]
+}
