@@ -76,6 +76,11 @@ defineReactiveProperty('lineHeight');
 defineReactiveProperty('startX');
 defineReactiveProperty('startY');
 defineReactiveProperty('justify');
+// Prevent computeBoundingBox from overwriting the pre-calculated bounding box of the instanced text glyphs.
+// Since SlugGeometry computes the bounding box dynamically during addGlyph, computeBoundingBox can safely be a no-op.
+proto.computeBoundingBox = function () {
+    // No-op to preserve the correct bounding box calculated on the CPU
+};
 // Register the SlugGeometry with R3F so it can be used natively as <slugGeometry /> in camelCase
 (0, fiber_1.extend)({ SlugGeometry: three_slug_1.SlugGeometry });
 exports.SlugGeometry = React.forwardRef(({ text, slugData, args, fontScale, lineHeight, startX, startY, justify, ...props }, ref) => {

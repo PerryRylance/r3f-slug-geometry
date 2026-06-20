@@ -50,14 +50,34 @@ jest.mock('three', () => {
 
 // Mock three-slug so that the geometry logic is isolated and has mock implementations
 jest.mock('three-slug', () => {
+  const THREE = require('three');
   return {
-    SlugGeometry: class {
+    SlugGeometry: class extends THREE.InstancedBufferGeometry {
       maxGlyphs: number;
+      boundingBox: any;
+      boundingSphere: any;
       constructor(maxGlyphs: number) {
+        super();
         this.maxGlyphs = maxGlyphs;
+        this.boundingBox = new THREE.Box3();
+        this.boundingSphere = new THREE.Sphere();
+
+        // Setup same position attribute as real SlugGeometry to simulate the bug
+        const vertices = new Float32Array([
+          -1.0, -1.0,
+          -1.0,  1.0,
+           1.0,  1.0,
+           1.0, -1.0
+        ]);
+        this.setAttribute('position', new THREE.BufferAttribute(vertices, 2));
       }
-      clear = jest.fn();
-      addText = jest.fn();
+      clear = jest.fn(() => {
+        this.boundingBox.makeEmpty();
+      });
+      addText = jest.fn((text: string, slugData: any, options?: any) => {
+        this.boundingBox.min.set(0, -10, 0);
+        this.boundingBox.max.set(50, 10, 0);
+      });
       dispose = jest.fn();
     },
     injectSlug: jest.fn()
@@ -148,4 +168,52 @@ test('SlugText throws error when child is not a material', () => {
       children: React.createElement('div')
     }, null);
   }).toThrow(/SlugText child must be a material element/);
+});
+
+test('attaching a ref to SlugText, rendering, and computing bounding box', async () => {
+  const canvas = {
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    getBoundingClientRect: () => ({ width: 100, height: 100, top: 0, left: 0, right: 100, bottom: 100 }),
+    style: {},
+    getContext: () => ({}),
+  } as any;
+
+  const root = createRoot(canvas);
+  const ref = React.createRef<THREE.Mesh>();
+
+  root.render(
+    React.createElement(
+      SlugText,
+      {
+        ref,
+        text: 'hello',
+        slugData: { codePoints: new Map() } as any,
+        name: 'test-mesh'
+      },
+      React.createElement('meshStandardMaterial', { color: 'red' })
+    )
+  );
+
+  // Let the fiber reconciler process a tick
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  // Verify the ref is attached
+  expect(ref.current).toBeInstanceOf(THREE.Mesh);
+
+  const mesh = ref.current!;
+  const geometry = mesh.geometry as any;
+
+  // Verify the bounding box has been populated
+  expect(geometry.boundingBox).toBeDefined();
+  expect(geometry.boundingBox.min.x).toBe(0);
+  expect(geometry.boundingBox.max.x).toBe(50);
+
+  // When we compute the bounding box, it should NOT reset to -1 / +1
+  geometry.computeBoundingBox();
+
+  expect(geometry.boundingBox.min.x).toBe(0);
+  expect(geometry.boundingBox.max.x).toBe(50);
+
+  root.unmount();
 });
