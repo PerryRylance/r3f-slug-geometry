@@ -69,7 +69,7 @@ jest.mock('three-slug', () => {
            1.0,  1.0,
            1.0, -1.0
         ]);
-        this.setAttribute('position', new THREE.BufferAttribute(vertices, 2));
+        (this as any).setAttribute('position', new THREE.BufferAttribute(vertices, 2));
       }
       clear = jest.fn(() => {
         this.boundingBox.makeEmpty();
@@ -130,8 +130,12 @@ test('rendering SlugText component in R3F root does not crash', async () => {
   root.render(
     React.createElement(
       SlugText,
-      { text: 'hello', slugData: { codePoints: new Map() } as any, name: 'test-mesh' },
-      React.createElement('meshStandardMaterial', { color: 'red' })
+      {
+        text: 'hello',
+        slugData: { codePoints: new Map() } as any,
+        name: 'test-mesh',
+        children: React.createElement('meshStandardMaterial', { color: 'red' })
+      }
     )
   );
 
@@ -189,9 +193,9 @@ test('attaching a ref to SlugText, rendering, and computing bounding box', async
         ref,
         text: 'hello',
         slugData: { codePoints: new Map() } as any,
-        name: 'test-mesh'
-      },
-      React.createElement('meshStandardMaterial', { color: 'red' })
+        name: 'test-mesh',
+        children: React.createElement('meshStandardMaterial', { color: 'red' })
+      }
     )
   );
 
